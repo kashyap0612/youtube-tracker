@@ -3,8 +3,8 @@ import streamlit as st
 from supabase import create_client, Client
 
 # --- Supabase config ---
-SUPABASE_URL = "https://sttnlyunyemkahfoiiti.supabase.co"
-SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0dG5seXVueWVta2FoZm9paXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzE4NzcsImV4cCI6MjA3MjA0Nzg3N30.ICSQdkRSYUQZD__vQiXe3O2TbIUQ_CvUeO7v7ORuR6k"
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- Streamlit UI ---
