@@ -1,22 +1,11 @@
 # youtube_tracker.py
 import streamlit as st
-import pandas as pd
-import os
+from supabase import create_client, Client
 
-FILE_NAME = "videos.csv"
-
-# --- Helper functions ---
-def load_data():
-    if os.path.exists(FILE_NAME):
-        return pd.read_csv(FILE_NAME)
-    else:
-        return pd.DataFrame(columns=["Video Name", "Estimated Time (hrs)"])
-
-def save_data(video_name, est_time):
-    df = load_data()
-    new_entry = pd.DataFrame([[video_name, est_time]], columns=df.columns)
-    df = pd.concat([df, new_entry], ignore_index=True)
-    df.to_csv(FILE_NAME, index=False)
+# --- Supabase config ---
+SUPABASE_URL = "https://sttnlyunyemkahfoiiti.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InN0dG5seXVueWVta2FoZm9paXRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NzE4NzcsImV4cCI6MjA3MjA0Nzg3N30.ICSQdkRSYUQZD__vQiXe3O2TbIUQ_CvUeO7v7ORuR6k"
+supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="YouTube Tracker", page_icon="🎥", layout="centered")
@@ -27,17 +16,24 @@ st.write("Track your learning videos and time commitment.")
 with st.form("add_video_form"):
     video_name = st.text_input("Enter Video Name")
     est_time = st.number_input("Estimated Completion Time (hours)", min_value=0.0, step=0.5)
+    status = st.selectbox("Status", ["Not Started", "In Progress", "Completed"])
     submitted = st.form_submit_button("Add Video")
     if submitted and video_name.strip():
-        save_data(video_name.strip(), est_time)
-        st.success(f"Added: {video_name} ({est_time} hrs)")
+        supabase.table("videos").insert({
+            "video_name": video_name.strip(),
+            "estimated_time": est_time,
+            "status": status
+        }).execute()
+        st.success(f"Added: {video_name} ({est_time} hrs, {status})")
 
 # Show saved videos
 st.subheader("📑 Saved Videos")
-data = load_data()
-if not data.empty:
+response = supabase.table("videos").select("*").execute()
+data = response.data if response.data else []
+
+if data:
     search = st.text_input("Search video")
-    filtered = data[data["Video Name"].str.contains(search, case=False, na=False)] if search else data
-    st.dataframe(filtered, use_container_width=True)
+    filtered = [row for row in data if search.lower() in row["video_name"].lower()] if search else data
+    st.table(filtered)
 else:
     st.info("No videos saved yet. Add some above!")
