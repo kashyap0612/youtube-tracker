@@ -1,6 +1,6 @@
 # youtube_tracker.py
 import streamlit as st
-from supabase import create_client, Client
+from supabase_py import create_client, Client
 
 # --- Supabase config ---
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
