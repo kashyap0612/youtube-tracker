@@ -1,11 +1,11 @@
-# youtube_tracker.py
 import streamlit as st
-from supabase import create_client, Client
+from supabase import create_client
 
 # --- Supabase config ---
 SUPABASE_URL = st.secrets["SUPABASE_URL"]
 SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
-supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+
 
 # --- Streamlit UI ---
 st.set_page_config(page_title="YouTube Tracker", page_icon="🎥", layout="centered")
